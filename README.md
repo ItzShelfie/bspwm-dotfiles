@@ -18,6 +18,7 @@
 - Файлы, сгенерированные Matugen (`wallpaper-colors.conf`, `colors.ini`, `colors.sh`, шейдер picom), включены как есть; при смене обоев они перегенерируются.
 - Waybar-шаблон удалён и из `matugen/config.toml`, чтобы при применении темы не создавались Wayland-файлы.
 - Из скриптов и `bspwmrc` вырезаны Wayland-ветки и `pkill waybar` — только X11-путь.
+- Скриншот по `Super+Shift+S`: `maim -s` → PNG 1700px → clipboard с таргетом `image/png`. Размер ограничен ~1MB из-за бага xclip 0.13, поэтому 1920px не работает.
 - `gfetch` вместо абсолютной симлинки на `~/Documents/gfetch` скопирован как отдельный исполняемый файл.
 - Секреты/токены не найдены.
 - `~/.local/bin/fix-clock-root` требует `sudo`: чинит рассинхрон RTC/UTC на 3 часа.

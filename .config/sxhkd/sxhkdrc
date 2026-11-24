@@ -137,9 +137,9 @@ super + alt + shift + {h,j,k,l}
 super + ctrl + t
 	~/.local/bin/rofi-wallpaper
 
-# screenshot selection to clipboard (X11): 1920px JPEG, kills stale clipboard owners
+# screenshot selection to clipboard (X11): 1700px PNG (xclip 0.13 chokes above ~1MB)
 super + shift + s
-	pkill -x xclip 2>/dev/null || true; maim -s | ffmpeg -hide_banner -loglevel error -f image2pipe -vcodec png -i pipe:0 -vf scale=1920:-2 -vcodec mjpeg -q:v 5 -f image2pipe pipe:1 | xclip -selection clipboard -t image/jpeg
+	maim -s | ffmpeg -hide_banner -loglevel error -f image2pipe -vcodec png -i pipe:0 -vf scale=1700:-2 -vcodec png -compression_level 9 -f image2pipe pipe:1 | xclip -selection clipboard -t image/png
 
 # clipboard history (clipmenu + rofi)
 super + v
