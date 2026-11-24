@@ -9,7 +9,8 @@ fi
 image=$(realpath -e -- "$1")
 [[ -f "$image" ]] || { echo 'Not a file' >&2; exit 2; }
 
-# Pick scheme based on wallpaper colorfulness (amount of color), like ~/Dotfiles wallpaper-theme.
+# Pick scheme by real saturation, not "any pixel with a slight warm tint".
+# Sepia/brown walls used to pass the old max-min > 6 test and got an orange accent.
 scheme=$(python3 - "$image" <<'PY'
 import sys
 from PIL import Image
@@ -17,15 +18,22 @@ with Image.open(sys.argv[1]) as src:
     rgb = src.convert("RGB")
     rgb.thumbnail((256, 256))
     pixels = list(rgb.get_flattened_data())
-colored = sum(max(p) - min(p) > 6 for p in pixels)
-print("scheme-fidelity" if colored >= len(pixels) * 0.02 else "scheme-monochrome")
+colored = 0
+for p in pixels:
+    spread = max(p) - min(p)
+    if spread >= 40 and spread / max(max(p), 1) >= 0.5:
+        colored += 1
+print("scheme-fidelity" if colored >= len(pixels) * 0.08 else "scheme-neutral")
 PY
 )
 
-# Pick source color by wallpaper color amount (dominant/popular colorful pixels), not "warm first".
-source_index=0
-source_colors=$(matugen image "$image" -m dark -c "$HOME/.config/matugen/config.toml" --show-source-colors 2>/dev/null || true)
-if [[ -n "$source_colors" ]]; then
+# Only fidelity schemes need a source color chosen from dominant pixels.
+# Neutral walls ignore the source hue; let Matugen prefer the least saturated one.
+source_index=""
+if [[ "$scheme" == "scheme-fidelity" ]]; then
+  source_colors=$(matugen image "$image" -m dark -c "$HOME/.config/matugen/config.toml" --show-source-colors 2>/dev/null || true)
+fi
+if [[ -n "${source_colors:-}" ]]; then
   source_index=$(SOURCE_COLORS="$source_colors" python3 - "$image" <<'PY'
 import os, re, colorsys, sys
 from PIL import Image
@@ -69,7 +77,13 @@ PY
 fi
 
 # Generate colors first
-matugen image "$image" -m dark -c "$HOME/.config/matugen/config.toml" --source-color-index "$source_index" --type "$scheme"
+matugen_args=(image "$image" -m dark -c "$HOME/.config/matugen/config.toml" --type "$scheme")
+if [[ -n "$source_index" ]]; then
+  matugen_args+=(--source-color-index "$source_index")
+else
+  matugen_args+=(--prefer less-saturation)
+fi
+matugen "${matugen_args[@]}"
 
 # Apply bspwm border colors immediately (X11/bspwm session)
 [ -f "$HOME/.config/bspwm/colors.sh" ] && . "$HOME/.config/bspwm/colors.sh"
