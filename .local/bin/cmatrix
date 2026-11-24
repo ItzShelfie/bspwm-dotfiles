@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# cmatrix with Matugen accent: temporarily remap kitty ANSI green (2/10).
+set -euo pipefail
+
+# Preserve explicit -C/--color requests; theming is only the default.
+for arg in "$@"; do
+  case "$arg" in
+    -C|-C*|--color|--color=*) exec /usr/bin/cmatrix "$@" ;;
+  esac
+done
+
+# OSC 4/104 remapping is kitty-specific; elsewhere run cmatrix untouched.
+[[ -n "${KITTY_WINDOW_ID:-}" ]] || exec /usr/bin/cmatrix "$@"
+
+accent_file="$HOME/.config/matugen/cmatrix-accent.txt"
+accent=$(tr -d '[:space:]' < "$accent_file" 2>/dev/null || true)
+[[ "$accent" =~ ^#[0-9a-fA-F]{6}$ ]] || exec /usr/bin/cmatrix "$@"
+accent=${accent#\#}
+
+printf '\033]4;2;#%s\033\\\033]4;10;#%s\033\\' "$accent" "$accent"
+restore() { printf '\033]104;2\033\\\033]104;10\033\\'; }
+trap restore EXIT
+
+/usr/bin/cmatrix -C green "$@"

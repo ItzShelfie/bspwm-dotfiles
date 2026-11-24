@@ -1,0 +1,37 @@
+# Matugen config (adapted from ~/Dotfiles/dotfiles, trimmed to installed components).
+[config.wallpaper]
+command = "/usr/bin/true"
+set = false
+
+[templates.fastfetch]
+input_path = '~/.config/matugen/templates/fastfetch.jsonc'
+output_path = '~/.config/fastfetch/config.jsonc'
+
+[templates.starship]
+input_path = '~/.config/matugen/templates/starship.toml'
+output_path = '~/.config/starship.toml'
+
+[templates.kitty]
+input_path = '~/.config/matugen/templates/kitty-colors.conf'
+output_path = '~/.config/kitty/wallpaper-colors.conf'
+
+[templates.pfetch]
+input_path = '~/.config/matugen/templates/pfetch-colors.fish'
+output_path = '~/.config/fish/conf.d/pfetch-colors.fish'
+
+[templates.cmatrix]
+input_path = '~/.config/matugen/templates/cmatrix-accent.txt'
+output_path = '~/.config/matugen/cmatrix-accent.txt'
+
+[templates.bspwm]
+input_path = '~/.config/matugen/templates/bspwm-colors.sh'
+output_path = '~/.config/bspwm/colors.sh'
+
+[templates.polybar]
+input_path = '~/.config/matugen/templates/polybar-colors.ini'
+output_path = '~/.config/polybar/colors.ini'
+
+[templates.picom]
+input_path = '~/.config/matugen/templates/picom-double-border.glsl'
+output_path = '~/.config/picom/shaders/double-border.glsl'
+

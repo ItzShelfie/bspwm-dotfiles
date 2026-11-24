@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Move tiled node by swapping, or floating node by pixels.
+dir="$1"
+if bspc query -N -n focused.floating >/dev/null 2>&1; then
+  case "$dir" in
+    west)  bspc node -v -30 0 ;;
+    south) bspc node -v 0 30 ;;
+    north) bspc node -v 0 -30 ;;
+    east)  bspc node -v 30 0 ;;
+  esac
+else
+  bspc node -s "$dir"
+fi

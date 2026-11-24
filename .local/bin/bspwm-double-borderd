@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# Start/restart double border daemon for bspwm.
+# Args: <normal> <focused> <inner> [outer_width] [inner_width]
+set -euo pipefail
+normal="${1:-#49473c}"
+focused="${2:-#cfc897}"
+inner="${3:-#1c1b19}"
+ow="${4:-2}"
+iw="${5:-2}"
+
+pkill -f "/.local/bin/bspwm-double-border " >/dev/null 2>&1 || pkill -x bspwm-double-bor >/dev/null 2>&1 || true
+exec /home/shelf/.local/bin/bspwm-double-border -n "$normal" -f "$focused" -i "$inner" -O "$ow" -I "$iw"

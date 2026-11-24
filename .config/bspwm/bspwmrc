@@ -1,0 +1,64 @@
+#! /bin/sh
+
+# Explicit timezone so bars don't fall back to UTC.
+export TZ=Europe/Moscow
+
+# Keyboard: US + RU, toggle by Shift+Alt
+setxkbmap -layout us,ru -option grp:alt_shift_toggle &
+
+# Mouse: flat acceleration
+xset m 0 0 &
+
+# Default X11 cursor
+if command -v xsetroot >/dev/null 2>&1; then
+  xsetroot -cursor_name left_ptr &
+elif command -v fix-root-cursor >/dev/null 2>&1; then
+  fix-root-cursor left_ptr &
+fi
+export XCURSOR_THEME=default
+export XCURSOR_SIZE=24
+
+# Monitor: 165Hz (DisplayPort-1 on this setup)
+if xrandr | grep -q '^DisplayPort-1 connected'; then
+  xrandr --output DisplayPort-1 --mode 3440x1440 --rate 165
+elif xrandr | grep -q '^DP-2 connected'; then
+  xrandr --output DP-2 --mode 3440x1440 --rate 165
+else
+  out=$(xrandr | awk '/ connected/{print $1; exit}')
+  [ -n "$out" ] && xrandr --output "$out" --mode 3440x1440 --rate 165
+fi
+
+# Compositor: keeps Qt/QRhi windows redrawn after screenshots and handles kitty opacity.
+pgrep -x picom >/dev/null 2>&1 || { nohup picom --config "$HOME/.config/picom/picom.conf" >/tmp/picom.log 2>&1 & }
+
+pgrep -x sxhkd > /dev/null || sxhkd &
+pgrep -x clipmenud > /dev/null || clipmenud > /tmp/clipmenud.log 2>&1 &
+pgrep -x polybar > /dev/null || polybar -q main -c "$HOME/.config/polybar/config.ini" > /tmp/polybar.log 2>&1 &
+
+bspc monitor -d 1 2 3 4 5 6 7 8 9 10
+
+bspc config border_width         3
+bspc config window_gap          12
+
+bspc config split_ratio          0.52
+bspc config borderless_monocle   true
+bspc config gapless_monocle      true
+bspc config pointer_motion_interval 7
+bspc config pointer_modifier mod4
+
+# Matugen border colors
+[ -f "$HOME/.config/bspwm/colors.sh" ] && . "$HOME/.config/bspwm/colors.sh"
+
+# Restore last wallpaper
+if [ -f "$HOME/.local/state/current-wallpaper" ]; then
+  wp=$(cat "$HOME/.local/state/current-wallpaper")
+  if [ -f "$wp" ] && command -v xwallpaper >/dev/null 2>&1; then
+    xwallpaper --zoom "$wp" &
+  fi
+fi
+
+bspc rule -a Gimp desktop='^8' state=floating follow=on
+bspc rule -a Chromium desktop='^2'
+bspc rule -a mplayer2 state=floating
+bspc rule -a Kupfer.py focus=on
+bspc rule -a Screenkey manage=off

@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Apply Matugen colors to bspwm. Source from bspwmrc; can also be run after matugen.
+[ -f "$HOME/.config/bspwm/colors.sh" ] || exit 0
+# shellcheck source=/dev/null
+. "$HOME/.config/bspwm/colors.sh"

@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# gfetch - Linux adaptation of the Plan 9 rc gfetch.
+
+set -euo pipefail
+
+esc=$'\033'
+reset="${esc}[0m"
+bold="${esc}[1m"
+
+# Matugen/pfetch colors if available
+col="${esc}[38;2;146;209;212m"
+if [[ -n "${PF_COL1:-}" ]]; then
+  case "$PF_COL1" in
+    8\;2\;*) col="${esc}[3${PF_COL1}m" ;;
+    [0-7]) col="${esc}[3${PF_COL1}m" ;;
+  esac
+fi
+
+user_name="${USER:-$(id -un)}"
+host_name="$(hostname 2>/dev/null || uname -n)"
+os="$(. /etc/os-release 2>/dev/null && echo "${PRETTY_NAME:-Linux}" || uname -s)"
+arch="$(uname -m)"
+kernel="$(uname -r)"
+shell_name="$(basename "${SHELL:-/bin/bash}")"
+uptime_s="$(uptime -p 2>/dev/null | sed 's/^up //')"
+if [[ -z "$uptime_s" ]]; then
+  uptime_s="$(uptime 2>/dev/null | sed 's/.*up *//; s/, *[0-9]* user.*//')"
+fi
+
+# RAM (MiB)
+ram_used=""; ram_total=""
+if [[ -r /proc/meminfo ]]; then
+  mem_total_kb=$(awk '/MemTotal:/ {print $2}' /proc/meminfo)
+  mem_avail_kb=$(awk '/MemAvailable:/ {print $2}' /proc/meminfo)
+  ram_total=$((mem_total_kb / 1024))
+  ram_used=$(((mem_total_kb - mem_avail_kb) / 1024))
+fi
+
+# CPU
+cpu="$(grep -m1 'model name' /proc/cpuinfo 2>/dev/null | cut -d: -f2- | sed 's/^ //; s/(R)//g; s/(TM)//g; s/ CPU//g; s/  */ /g')"
+[[ -z "$cpu" ]] && cpu="$(uname -p 2>/dev/null || echo unknown)"
+
+# Resolution (best effort)
+scr=""
+if command -v xrandr >/dev/null 2>&1 && [[ -n "${DISPLAY:-}" ]]; then
+  scr="$(xrandr --current 2>/dev/null | awk '/\*/{print $1; exit}')"
+fi
+if [[ -z "$scr" ]] && command -v hyprctl >/dev/null 2>&1 && [[ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ]]; then
+  scr="$(hyprctl monitors -j 2>/dev/null | python3 -c 'import json,sys
+try:
+ d=json.load(sys.stdin); m=d[0]
+ print(f"{m.get(\"width\",\"\")}x{m.get(\"height\",\"\")}")
+except Exception: pass')"
+fi
+[[ -z "$scr" ]] && scr="unknown"
+
+cat <<EOF
+${col}${bold}             ${user_name}@${host_name}${reset}
+${col}    (\(\     -----------${reset}
+${col}   j". ..    ${bold}os:${reset} ${os}/${arch}
+${col}   (  . .)   ${bold}kernel:${reset} ${kernel}
+${col}   |   ° ¡   ${bold}shell:${reset} ${shell_name}
+${col}   ¿     ;   ${bold}uptime:${reset} ${uptime_s}
+${col}   c?".UJ    ${bold}ram:${reset} ${ram_used}/${ram_total} MiB
+${col}             ${bold}cpu:${reset} ${cpu}
+${col}             ${bold}resolution:${reset} ${scr}
+EOF

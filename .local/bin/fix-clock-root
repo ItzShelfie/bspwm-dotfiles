@@ -1,0 +1,13 @@
+#!/bin/sh
+# RTC holds correct UTC, but the system was booted treating it as local time,
+# so the kernel subtracted 3 hours. Switch hwclock/adjtime to UTC and re-read it.
+set -e
+
+sed -i 's/^clock="local"/clock="UTC"/' /etc/conf.d/hwclock
+sed -i 's/^LOCAL$/UTC/' /etc/adjtime
+hwclock --hctosys --utc
+
+printf 'System now: '
+date '+%F %T %Z %z'
+printf 'UTC now:    '
+date -u '+%F %T UTC'

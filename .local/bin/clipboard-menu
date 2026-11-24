@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+export CM_LAUNCHER=rofi
+export CM_HISTLENGTH=12
+exec /usr/bin/clipmenu -theme-str 'window {width: 60%;} listview {lines: 12;}'

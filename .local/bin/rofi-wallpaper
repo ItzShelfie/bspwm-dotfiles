@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# Lightweight wallpaper picker for rofi + X11/Wayland.
+set -euo pipefail
+WALLPAPER_DIR="${HOME}/Pictures/wallpapers"
+
+if [[ ! -d "$WALLPAPER_DIR" ]]; then
+  command -v notify-send >/dev/null 2>&1 && notify-send "Wallpaper picker" "No directory: $WALLPAPER_DIR"
+  exit 1
+fi
+
+mapfile -t files < <(find -L "$WALLPAPER_DIR" -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' \) | sort)
+((${#files[@]} > 0)) || exit 1
+
+maxlen=0
+for f in "${files[@]}"; do
+  name=$(basename "$f")
+  ((${#name} > maxlen)) && maxlen=${#name}
+done
+width=$((maxlen + 8))
+((width > 110)) && width=110
+
+choice=$(for f in "${files[@]}"; do
+  name=$(basename "$f")
+  printf '%s\0icon\x1f%s\n' "$name" "$f"
+done | rofi -dmenu -i -show-icons -p "Wallpaper" -theme-str "window {width: ${width}ch;} listview {lines: 12;} element-icon {size: 1em;}" )
+
+[[ -z "$choice" ]] && exit 0
+
+selected=""
+for f in "${files[@]}"; do
+  if [[ "$(basename "$f")" == "$choice" ]]; then
+    selected="$f"
+    break
+  fi
+done
+[[ -n "$selected" ]] || exit 1
+
+# X11: lightweight setters
+if command -v xwallpaper >/dev/null 2>&1; then
+  xwallpaper --zoom "$selected"
+elif command -v feh >/dev/null 2>&1; then
+  feh --no-fehbg --bg-fill "$selected"
+elif command -v nitrogen >/dev/null 2>&1; then
+  nitrogen --set-zoom-fill --save "$selected"
+else
+  command -v notify-send >/dev/null 2>&1 && notify-send "Wallpaper picker" "Install xwallpaper or feh for X11"
+  printf 'No X11 wallpaper setter found. Install: sudo emerge --ask x11-misc/xwallpaper\n' >&2
+  exit 1
+fi
+
+# Also apply matugen colors if available
+if command -v matugen >/dev/null 2>&1; then
+  ~/.local/bin/wallpaper-theme "$selected" >/dev/null 2>&1 || true
+fi

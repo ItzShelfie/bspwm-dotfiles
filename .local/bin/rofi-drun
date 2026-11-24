@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# X11 only: drun launcher for the bspwm/sxhkd session.
+pidof rofi >/dev/null 2>&1 && exit 0
+exec rofi -show drun
