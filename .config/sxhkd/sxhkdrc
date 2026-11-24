@@ -137,9 +137,9 @@ super + alt + shift + {h,j,k,l}
 super + ctrl + t
 	~/.local/bin/rofi-wallpaper
 
-# screenshot selection to clipboard (X11): 1920px 256-color PNG (~450KB), no stale xclip owners
+# screenshot selection to clipboard (X11): 1280px palette PNG <256KB -> no INCR transfer
 super + shift + s
-	pkill -x xclip 2>/dev/null || true; maim -s | ffmpeg -hide_banner -loglevel error -f image2pipe -vcodec png -i pipe:0 -filter_complex '[0:v]scale=1920:-2,split[a][b];[a]palettegen=max_colors=256:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3[out]' -map '[out]' -frames:v 1 -vcodec png -compression_level 9 -f image2pipe pipe:1 | xclip -selection clipboard -t image/png
+	pkill -x xclip 2>/dev/null || true; maim -s | ffmpeg -hide_banner -loglevel error -f image2pipe -vcodec png -i pipe:0 -filter_complex '[0:v]scale=1280:-2,split[a][b];[a]palettegen=max_colors=256:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=3[out]' -map '[out]' -frames:v 1 -vcodec png -compression_level 9 -f image2pipe pipe:1 | xclip -selection clipboard -t image/png -loops 1
 
 # clipboard history (clipmenu + rofi)
 super + v
