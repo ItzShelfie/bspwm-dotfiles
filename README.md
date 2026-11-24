@@ -25,3 +25,4 @@
 
 `MANIFEST.txt` содержит полный список файлов.
 # bspwm-dotfiles
+# bspwm-dotfiles
