@@ -13,9 +13,9 @@ uniform bool invert_color;
 vec4 default_post_processing(vec4 c);
 
 const vec4 BORDER_COLOR = vec4(
-    float(216)/255.0,
-    float(195)/255.0,
-    float(169)/255.0,
+    float(200)/255.0,
+    float(199)/255.0,
+    float(199)/255.0,
     1.0
 );
 

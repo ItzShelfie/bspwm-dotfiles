@@ -4,15 +4,15 @@
     "type": "auto",
     "padding": { "top": 4 },
     "color": {
-      "1": "#d8c3a9",
-      "2": "#e7e1de"
+      "1": "#c8c7c7",
+      "2": "#e5e2e1"
     }
   },
   "display": {
     "color": {
-      "keys": "#d8c3a9",
-      "title": "#d8c3a9",
-      "separator": "#d0c5b8"
+      "keys": "#c8c7c7",
+      "title": "#c8c7c7",
+      "separator": "#c8c6c6"
     }
   },
   "modules": [

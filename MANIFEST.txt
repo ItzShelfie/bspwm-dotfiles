@@ -47,6 +47,7 @@
 .local/bin/fix-clock-root
 .local/bin/fix-root-cursor
 .local/bin/gfetch
+.local/bin/obs-audio-route
 .local/bin/rofi-drun
 .local/bin/rofi-drun.sh
 .local/bin/rofi-toggle
